@@ -2,28 +2,17 @@
 Portions of this page are reproduced from work created and shared by Google and used
 according to terms described in the Creative Commons 4.0 Attribution License.
 """
+import pandas as pd
 
-import tensorflow as tf
 
+def plot_losses(history):
+    """ Plot loss and RMSE with given history. """
 
-def compile_and_fit(model, window, patience=2, max_epochs=20):
-    """ Training procedure. """
+    losses = pd.DataFrame(history.history)
 
-    # early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss',
-    #                                                     patience=patience,
-    #                                                     mode='min')
+    losses[['loss', 'val_loss']].plot(figsize=(10,8), xlabel="Epoch", ylabel="Loss", title="Model loss")
+    losses[['root_mean_squared_error', 'val_root_mean_squared_error']].plot(figsize=(10,8), xlabel="Epoch", ylabel="RMSE", title="RMSE")
 
-    model.compile(loss=tf.losses.MeanSquaredError(),
-                    optimizer=tf.optimizers.Adam(),
-                    metrics=[tf.metrics.RootMeanSquaredError()])
-
-    history = model.fit(
-        window.train, epochs=max_epochs,
-        validation_data=window.val,
-        # callbacks=[early_stopping]
-    )
-
-    return history
 
 def train_test_val_split(df, test_size=0.1, val_size=0.2):
     """ Split dataset into train, test and validation.
@@ -38,9 +27,9 @@ def train_test_val_split(df, test_size=0.1, val_size=0.2):
     train_limit = 1 - test_size - val_size
     val_limit = 1 - test_size
 
-    train_df = df[0:int(n*train_limit)]                 # 70% for training
-    val_df = df[int(n*train_limit):int(n*val_limit)]    # 20% for validation
-    test_df = df[int(n*val_limit):]                     # 10% for testing
+    train_df = df[0:int(n*train_limit)]
+    val_df = df[int(n*train_limit):int(n*val_limit)]
+    test_df = df[int(n*val_limit):]
 
     # num_features = df.shape[1]
     # print(num_features)

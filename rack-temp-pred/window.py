@@ -11,7 +11,7 @@ import tensorflow as tf
 
 class WindowGenerator():
     def __init__(self, input_width, label_width, shift,
-                 train_df: pd.DataFrame, val_df: pd.DataFrame, test_df: pd.DataFrame,
+                 train_df: pd.DataFrame, val_df: pd.DataFrame=None, test_df: pd.DataFrame=None,
                  label_columns=None):
         # Store the raw data.
         self.train_df = train_df
