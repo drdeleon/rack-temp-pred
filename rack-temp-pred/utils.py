@@ -3,6 +3,8 @@ Portions of this page are reproduced from work created and shared by Google and 
 according to terms described in the Creative Commons 4.0 Attribution License.
 """
 import pandas as pd
+from scipy.signal import savgol_filter
+
 
 
 def plot_losses(history):
@@ -36,14 +38,21 @@ def train_test_val_split(df, test_size=0.1, val_size=0.2):
 
     return train_df, test_df, val_df
 
-def normalize_datasets(train_df, test_df, val_df):
+def normalize_datasets(dataset:pd.DataFrame, outlet_temp_cols:list[str], inlet_temp_cols:list[str]):
     """ Normalize datasets. """
 
-    train_mean = train_df.mean()
-    train_std = train_df.std()
+    # normalize fan speed
+    dataset['inlet_fan_speed'] = dataset['inlet_fan_speed'] / 100
+    dataset['outlet_fan_speed'] = dataset['outlet_fan_speed'] / 100
 
-    train_df = (train_df - train_mean) / train_std
-    val_df = (val_df - train_mean) / train_std
-    test_df = (test_df - train_mean) / train_std
+    # normalize temperatures based on ASHRAE recommendations
+    min_temp = dataset[inlet_temp_cols].min().min()
+    max_temp = dataset[inlet_temp_cols].max().max()
+    dataset[inlet_temp_cols] = (dataset[inlet_temp_cols] - min_temp) / (max_temp - min_temp)
+    dataset[outlet_temp_cols] = (dataset[outlet_temp_cols] - min_temp) / (max_temp - min_temp)
 
-    return train_df, test_df, val_df
+    # apply Savitsky-Golay filter
+    dataset[outlet_temp_cols]  = savgol_filter(dataset[outlet_temp_cols], window_length=11, polyorder=3, mode="nearest", axis=0)
+    dataset[inlet_temp_cols]  = savgol_filter(dataset[inlet_temp_cols], window_length=11, polyorder=3, mode="nearest", axis=0)
+
+    return dataset 
