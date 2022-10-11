@@ -23,9 +23,8 @@ def plot_losses(history):
     losses = pd.DataFrame(history.history)
 
 
-    losses[['loss', 'val_loss']].plot(figsize=(10,8), xlabel="Epoch", ylabel="Loss", title="Model loss")
+    # losses[['loss', 'val_loss']].plot(figsize=(10,8), xlabel="Epoch", ylabel="Loss", title="Model loss")
     losses[['root_mean_squared_error', 'val_root_mean_squared_error']].plot(figsize=(10,8), xlabel="Epoch", ylabel="RMSE", title="RMSE")
-
 
 def train_test_val_split(df, test_size=0.1, val_size=0.2):
     """ Split dataset into train, test and validation.
@@ -78,7 +77,7 @@ def inverse_transform_rmse(x, _min=9.08, _max=33.12):
 
     return sqrt((x**2) * (_max - _min) + _min)
 
-def train_case(case_df, model, label_cols, in_width, out_steps, max_epochs):
+def train_case(case_df, model, label_cols, in_width, out_steps, max_epochs, batch_size=32):
     """ Train model for given case df. Currently uses 20% of data for validation and 80% for training. """
     
     train_df, test_df, val_df = train_test_val_split(case_df, test_size=0, val_size=0.2)
@@ -90,7 +89,8 @@ def train_case(case_df, model, label_cols, in_width, out_steps, max_epochs):
         input_width=in_width,
         label_width=out_steps,
         shift=out_steps,
-        label_columns=label_cols
+        label_columns=label_cols,
+        batch_size=batch_size
     )
 
     history = model.fit(
@@ -102,3 +102,4 @@ def train_case(case_df, model, label_cols, in_width, out_steps, max_epochs):
     )
 
     return window, history
+
