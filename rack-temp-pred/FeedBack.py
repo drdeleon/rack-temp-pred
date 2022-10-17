@@ -15,13 +15,15 @@ class FeedBack(tf.keras.Model):
         self.lstm_cell = tf.keras.layers.LSTMCell(units)
         # Also wrap the LSTMCell in an RNN to simplify the `warmup` method.
         self.lstm_rnn = tf.keras.layers.RNN(self.lstm_cell, return_state=True)
-        self.dropout = tf.keras.layers.Dropout(0.5)
+        self.dropout = tf.keras.layers.Dropout(0.3)
         self.dense = tf.keras.layers.Dense(num_features)
     
     def warmup(self, inputs):
         # inputs.shape => (batch, time, features)
         # x.shape => (batch, lstm_units)
         x, *state = self.lstm_rnn(inputs)
+
+        x = self.dropout(x)
 
         # predictions.shape => (batch, features)
         prediction = self.dense(x)
