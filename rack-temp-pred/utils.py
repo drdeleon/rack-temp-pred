@@ -61,8 +61,8 @@ def normalize_datasets(dataset:pd.DataFrame, outlet_temp_cols:list[str], inlet_t
     dataset[outlet_temp_cols] = (dataset[outlet_temp_cols] - min_temp) / (max_temp - min_temp)
 
     # apply Savitsky-Golay filter
-    dataset[outlet_temp_cols] = savgol_filter(dataset[outlet_temp_cols], window_length=7, polyorder=3, mode="nearest", axis=0)
-    dataset[inlet_temp_cols] = savgol_filter(dataset[inlet_temp_cols], window_length=7, polyorder=3, mode="nearest", axis=0)
+    dataset[outlet_temp_cols] = savgol_filter(dataset[outlet_temp_cols], window_length=9, polyorder=3, mode="nearest", axis=0)
+    dataset[inlet_temp_cols] = savgol_filter(dataset[inlet_temp_cols], window_length=9, polyorder=3, mode="nearest", axis=0)
 
     return dataset 
 
@@ -158,14 +158,15 @@ class WindowGenerator():
 
         return inputs, labels
 
-    def plot(self, model=None, plot_col='outlet_70 [°C]', max_subplots=3):
+    def plot(self, model=None, plot_col='outlet_70', max_subplots=3, filename=None):
         inputs, labels = self.example
-        plt.figure(figsize=(12, 8))
+        # fig, ax = plt.subplots(figsize=(12, 8))
+        fig = plt.figure(figsize=(12, 8))
         plot_col_index = self.column_indices[plot_col]
         max_n = min(max_subplots, len(inputs))
         for n in range(max_n):
             plt.subplot(max_n, 1, n+1)
-            plt.ylabel(f'{plot_col}')
+            plt.ylabel(f'{plot_col} [°C]')
             plt.plot(self.input_indices, inverse_transform(inputs[n, :, plot_col_index]),
                      label='Inputs', marker='.', zorder=-10)
 
@@ -193,6 +194,9 @@ class WindowGenerator():
                 plt.legend()
 
         plt.xlabel('Time [s]')
+
+        if filename != None:
+            plt.savefig(filename, dpi=300)
 
 
     def make_dataset(self, data):
