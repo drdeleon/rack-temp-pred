@@ -160,8 +160,9 @@ class WindowGenerator():
 
     def plot(self, model=None, plot_col='outlet_70', max_subplots=3, filename=None):
         inputs, labels = self.example
-        # fig, ax = plt.subplots(figsize=(12, 8))
-        fig = plt.figure(figsize=(12, 8))
+
+        fig = plt.figure(figsize=(9, 6), dpi=300)
+
         plot_col_index = self.column_indices[plot_col]
         max_n = min(max_subplots, len(inputs))
         for n in range(max_n):
@@ -194,6 +195,7 @@ class WindowGenerator():
                 plt.legend()
 
         plt.xlabel('Time [s]')
+        plt.tight_layout()
 
         if filename != None:
             plt.savefig(filename, dpi=300)
